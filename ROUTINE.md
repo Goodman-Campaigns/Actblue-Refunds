@@ -6,15 +6,22 @@ clients in `accounts.yaml`. Each run follows these steps on branch
 
 ## Before the first run
 
-- **ActBlue CSV API keys** for each client, set as environment variables in
-  the cloud environment's settings (not in a file):
-  `ACTBLUE_<KEY>_CLIENT_UUID` and `ACTBLUE_<KEY>_CLIENT_SECRET`, where `<KEY>`
-  is the client's `key` in `accounts.yaml` in capitals, e.g.
-  `ACTBLUE_BRAD_LANDER_CLIENT_UUID`. `.env.example` lists all 90 names.
-  Clients without keys are skipped and listed in the run report; they don't
-  stop the others.
+- **Google Secret Manager access.** Keys are read from the vault that
+  `scripts/add-secrets.sh` fills: one secret per client named
+  `actblue_<client>` (e.g. `actblue_brad-lander`) holding
+  `{"client_uuid", "client_secret"}`. Set two environment variables in the
+  cloud environment's settings:
+  - `ACTBLUE_SECRETS_PROJECT`: the Google Cloud project ID that holds the
+    secrets.
+  - `GOOGLE_SERVICE_ACCOUNT_JSON`: the full JSON key of a service account
+    with only the **Secret Manager Secret Accessor** role on that project.
+
+  `ACTBLUE_<KEY>_CLIENT_UUID` / `_CLIENT_SECRET` environment variables still
+  work and take priority over the vault for that client (`.env.example`
+  lists the names). A client with no secret is skipped and listed in the run
+  report; it doesn't stop the others.
 - **Network access** to `secure.actblue.com`, added under Allowed domains in
-  the environment's network settings.
+  the environment's network settings. (Google's APIs are already reachable.)
 
 ## Steps
 
