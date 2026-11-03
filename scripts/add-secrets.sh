@@ -4,6 +4,9 @@
 # Run in Google Cloud Shell:
 #   bash add-secrets.sh
 #
+# It uses the project Cloud Shell is set to. To pick another:
+#   PROJECT=your-project-id bash add-secrets.sh
+#
 # Keys are typed at hidden prompts and piped straight to Secret Manager.
 # Nothing is written to disk, shown on screen, or saved in shell history.
 #
@@ -11,8 +14,9 @@
 
 set -euo pipefail
 
-PROJECT="goodman-homebase"
 ENV_LABEL="prod"
+
+echo "Starting..."
 
 if ! command -v gcloud >/dev/null; then
   echo "gcloud not found. Run this in Google Cloud Shell." >&2
@@ -23,7 +27,22 @@ if ! command -v jq >/dev/null; then
   exit 1
 fi
 
-gcloud config set project "$PROJECT" >/dev/null 2>&1
+# Use the project Cloud Shell is already set to, unless PROJECT is given.
+PROJECT="${PROJECT:-$(gcloud config get-value project 2>/dev/null || true)}"
+if [[ -z "$PROJECT" ]]; then
+  echo "No Google Cloud project selected. Run: gcloud config set project YOUR_PROJECT_ID" >&2
+  exit 1
+fi
+if ! gcloud secrets list --project="$PROJECT" --limit=1 >/dev/null 2>&1; then
+  echo "Can't reach Secret Manager in project '$PROJECT'." >&2
+  echo "Check the project ID (gcloud projects list), that Secret Manager is enabled," >&2
+  echo "and that your account has the Secret Manager Admin role." >&2
+  exit 1
+fi
+export CLOUDSDK_CORE_PROJECT="$PROJECT"
+
+read -rp "Add keys to project '$PROJECT'? [Y/n]: " ok
+[[ "$ok" =~ ^[Nn]$ ]] && exit 0
 
 # Lowercase letters, numbers and dashes only, max 63 characters (label limit).
 valid_part() {
