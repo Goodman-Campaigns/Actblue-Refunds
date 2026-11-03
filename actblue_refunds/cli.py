@@ -4,6 +4,7 @@ import json
 import sys
 
 import pandas as pd
+import requests
 from dotenv import load_dotenv
 
 from actblue_refunds.accounts import MissingCredentialsError, load_accounts
@@ -63,6 +64,19 @@ def parse_args(argv=None):
         help="Where to write newly-seen refunds as JSON, for notification tooling",
     )
     parser.add_argument("--no-notify", action="store_true", help="Skip new-refund tracking entirely")
+    parser.add_argument(
+        "--skip-missing-credentials",
+        action="store_true",
+        help=(
+            "Leave out accounts whose credentials aren't set instead of stopping, and list them "
+            "in --status-out. Without this flag, any missing credentials stop the run."
+        ),
+    )
+    parser.add_argument(
+        "--status-out",
+        default="run_status.json",
+        help="Where to write which accounts succeeded, failed, or had no credentials",
+    )
     args = parser.parse_args(argv)
 
     if args.months_back is not None:
@@ -80,13 +94,22 @@ def main(argv=None):
     load_dotenv()
     args = parse_args(argv)
 
+    missing = []
     try:
-        accounts = load_accounts(args.config)
+        if args.skip_missing_credentials:
+            accounts, missing = load_accounts(args.config, skip_missing=True)
+        else:
+            accounts = load_accounts(args.config)
     except MissingCredentialsError as e:
         sys.exit(str(e))
 
+    status = {"start": args.start, "end": args.end, "succeeded": [], "failed": [], "missing_credentials": missing}
+    for m in missing:
+        print(f"Skipping {m['name']}: missing {', '.join(m['missing'])}", file=sys.stderr)
+
     if not accounts:
-        sys.exit(f"No accounts configured in {args.config}")
+        _write_status(args.status_out, status)
+        sys.exit(f"No accounts with credentials configured in {args.config}")
 
     frames = []
     for account in accounts:
@@ -94,14 +117,22 @@ def main(argv=None):
         client = ActBlueClient(account["client_uuid"], account["client_secret"])
         try:
             csv_text = client.get_refunded_contributions(args.start, args.end)
-        except (ActBlueAPIError, TimeoutError) as e:
+            df = pd.read_csv(io.StringIO(csv_text)) if csv_text.strip() else None
+        except (ActBlueAPIError, TimeoutError, requests.RequestException, pd.errors.ParserError) as e:
             print(f"  ERROR: {e}", file=sys.stderr)
+            status["failed"].append({"key": account["key"], "name": account["name"], "error": str(e)})
             continue
 
-        df = pd.read_csv(io.StringIO(csv_text))
+        if df is None or df.empty:
+            status["succeeded"].append({"key": account["key"], "name": account["name"], "refunds": 0})
+            print("  0 refunded contribution(s)")
+            continue
         df.insert(0, "account", account["name"])
         frames.append(df)
+        status["succeeded"].append({"key": account["key"], "name": account["name"], "refunds": len(df)})
         print(f"  {len(df)} refunded contribution(s)")
+
+    _write_status(args.status_out, status)
 
     if not frames:
         sys.exit("No refund data retrieved for any account.")
@@ -128,6 +159,11 @@ def main(argv=None):
             print(f"\n{len(new_refunds)} new refund(s) since last check - see {args.new_refunds_out}")
         else:
             print("\nNo new refunds since last check.")
+
+
+def _write_status(path, status):
+    with open(path, "w") as f:
+        json.dump(status, f, indent=2)
 
 
 def _default_dashboard_path(out_path):

@@ -107,3 +107,53 @@ def test_summarize_new_refunds_excludes_untracked_forms():
 def test_summarize_new_refunds_returns_empty_for_no_new_rows():
     df = pd.DataFrame(columns=["account", "Refund Amount"])
     assert summarize_new_refunds(df, "Refund Amount") == []
+
+
+def test_newly_added_account_is_baselined_not_reported(tmp_path):
+    state_path = tmp_path / "state.json"
+    find_new_refunds(_df([{"account": "A", "Refund ID": "1", "Refund Amount": 1.0}]), str(state_path))
+
+    # Account B shows up for the first time (its credentials were just added):
+    # its existing refunds are its baseline, but A's new refund is still reported.
+    new_df, bootstrapped = find_new_refunds(
+        _df(
+            [
+                {"account": "A", "Refund ID": "1", "Refund Amount": 1.0},
+                {"account": "A", "Refund ID": "2", "Refund Amount": 2.0},
+                {"account": "B", "Refund ID": "10", "Refund Amount": 5.0},
+                {"account": "B", "Refund ID": "11", "Refund Amount": 6.0},
+            ]
+        ),
+        str(state_path),
+    )
+    assert bootstrapped is False
+    assert list(new_df["Refund ID"]) == ["2"]
+
+    # Next run, a new B refund is reported normally.
+    new_df, _ = find_new_refunds(
+        _df(
+            [
+                {"account": "B", "Refund ID": "10", "Refund Amount": 5.0},
+                {"account": "B", "Refund ID": "12", "Refund Amount": 7.0},
+            ]
+        ),
+        str(state_path),
+    )
+    assert list(new_df["Refund ID"]) == ["12"]
+
+
+def test_legacy_list_state_file_is_still_read(tmp_path):
+    state_path = tmp_path / "state.json"
+    state_path.write_text('["1", "2"]')
+
+    new_df, bootstrapped = find_new_refunds(
+        _df(
+            [
+                {"account": "A", "Refund ID": "1", "Refund Amount": 1.0},
+                {"account": "A", "Refund ID": "3", "Refund Amount": 3.0},
+            ]
+        ),
+        str(state_path),
+    )
+    assert bootstrapped is False
+    assert list(new_df["Refund ID"]) == ["3"]

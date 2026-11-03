@@ -1,0 +1,94 @@
+# All 45 ActBlue clients. `key` maps to that client's credentials:
+#   ACTBLUE_<KEY>_CLIENT_UUID / ACTBLUE_<KEY>_CLIENT_SECRET
+# (environment variables, e.g. ACTBLUE_BRAD_LANDER_CLIENT_UUID). No secrets here.
+accounts:
+  - key: amaad_rivera_wagner
+    name: "Amaad Rivera-Wagner"
+  - key: andrew_zwicker
+    name: "Andrew Zwicker"
+  - key: atlantic_county_democratic_committee
+    name: "Atlantic County Democratic Committee"
+  - key: brad_lander
+    name: "Brad Lander"
+  - key: cavalier_johnson
+    name: "Cavalier Johnson"
+  - key: chris_larson
+    name: "Chris Larson"
+  - key: dan_rayfield
+    name: "Dan Rayfield"
+  - key: darializa_avila_chevalier
+    name: "Darializa Avila Chevalier"
+  - key: dawn_addis
+    name: "Dawn Addis"
+  - key: democratic_party_of_arkansas
+    name: "Democratic Party of Arkansas"
+  - key: donavan_mckinney
+    name: "Donavan McKinney"
+  - key: gil_cisneros
+    name: "Gil Cisneros"
+  - key: hank_johnson
+    name: "Hank Johnson"
+  - key: harris_county_democratic_party
+    name: "Harris County Democratic Party"
+  - key: heather_bauer
+    name: "Heather Bauer"
+  - key: house_democratic_campaign_committee_of_louisiana
+    name: "House Democratic Campaign Committee of Louisiana"
+  - key: iowa_house
+    name: "Iowa House"
+  - key: jenna_jacobson
+    name: "Jenna Jacobson"
+  - key: jennifer_omara
+    name: "Jennifer O'Mara"
+  - key: jodi_habush_sinykin
+    name: "Jodi Habush Sinykin"
+  - key: jose_garza
+    name: "José Garza"
+  - key: kam_buckner
+    name: "Kam Buckner"
+  - key: kelly_cassidy
+    name: "Kelly Cassidy"
+  - key: kimberly_dubuclet
+    name: "Kimberly Dubuclet"
+  - key: mike_halpin
+    name: "Mike Halpin"
+  - key: missouri_house
+    name: "Missouri House"
+  - key: mitchell_berman
+    name: "Mitchell Berman"
+  - key: montana_democratic_legislative
+    name: "Montana Democratic Legislative"
+  - key: montana_democratic_party
+    name: "Montana Democratic Party"
+  - key: nh_senate_democratic_caucus
+    name: "NH Senate Democratic Caucus"
+  - key: nicole_cannizzaro
+    name: "Nicole Cannizzaro"
+  - key: norma_torres
+    name: "Norma Torres"
+  - key: oscar_de_los_santos
+    name: "Oscar De Los Santos"
+  - key: our_tennessee_future_pac
+    name: "Our Tennessee Future PAC"
+  - key: outvote
+    name: "Outvote"
+  - key: paul_kendrick
+    name: "Paul Kendrick"
+  - key: pedro_colon
+    name: "Pedro Colón"
+  - key: riverside_county_democratic_central_committee
+    name: "Riverside County Democratic Central Committee"
+  - key: rust_belt_rising
+    name: "Rust Belt Rising"
+  - key: salt_lake_county
+    name: "Salt Lake County"
+  - key: sedgwick_county
+    name: "Sedgwick County"
+  - key: steve_descano
+    name: "Steve Descano"
+  - key: texas_house_democratic_campaign_committee
+    name: "Texas House Democratic Campaign Committee"
+  - key: utah_state_democratic_committee
+    name: "Utah State Democratic Committee"
+  - key: voters_of_tomorrow
+    name: "Voters of Tomorrow"
