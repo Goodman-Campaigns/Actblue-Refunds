@@ -1,1 +1,51 @@
 # Actblue-Refunds
+
+ActBlue clients tracked for refund reporting (45). One client slug per line in [`clients.txt`](clients.txt); slugs match the ActBlue vault client names.
+
+## Clients
+
+- amaad-rivera-wagner
+- andrew-zwicker
+- atlantic-county-democratic-committee
+- brad-lander
+- cavalier-johnson
+- chris-larson
+- dan-rayfield
+- darializa-avila-chevalier
+- dawn-addis
+- democratic-party-of-arkansas
+- donavan-mckinney
+- gil-cisneros
+- hank-johnson
+- harris-county-democratic-party
+- heather-bauer
+- house-democratic-campaign-committee-of-louisiana
+- iowa-house
+- jenna-jacobson
+- jennifer-omara
+- jodi-habush-sinykin
+- jose-garza
+- kam-buckner
+- kelly-cassidy
+- kimberly-dubuclet
+- mike-halpin
+- missouri-house
+- mitchell-berman
+- montana-democratic-legislative
+- montana-democratic-party
+- nh-senate-democratic-caucus
+- nicole-cannizzaro
+- norma-torres
+- oscar-de-los-santos
+- our-tennessee-future-pac
+- outvote
+- paul-kendrick
+- pedro-colon
+- riverside-county-democratic-central-committee
+- rust-belt-rising
+- salt-lake-county
+- sedgwick-county
+- steve-descano
+- texas-house-democratic-campaign-committee
+- utah-state-democratic-committee
+- voters-of-tomorrow
