@@ -6,6 +6,14 @@ import requests
 
 API_BASE = "https://secure.actblue.com/api/v1"
 
+# Identify this tool honestly. ActBlue's firewall rejects requests carrying
+# the generic "python-requests" User-Agent with an HTML 403 before they reach
+# the API, so set a descriptive one (and ask for JSON) on every request.
+HEADERS = {
+    "User-Agent": "actblue-refunds/1.0 (Goodman Campaigns refund reporting; CSV API)",
+    "Accept": "application/json",
+}
+
 
 class ActBlueAPIError(Exception):
     """Raised when ActBlue reports that CSV generation failed."""
@@ -17,9 +25,11 @@ class ActBlueClient:
     def __init__(self, client_uuid, client_secret, timeout=30):
         self.auth = (client_uuid, client_secret)
         self.timeout = timeout
+        self.session = requests.Session()
+        self.session.headers.update(HEADERS)
 
     def request_csv(self, csv_type, date_range_start, date_range_end):
-        response = requests.post(
+        response = self.session.post(
             f"{API_BASE}/csvs",
             auth=self.auth,
             json={
@@ -34,7 +44,7 @@ class ActBlueClient:
 
     def poll_csv(self, csv_id, poll_interval=2, max_retries=150):
         for _ in range(max_retries):
-            response = requests.get(f"{API_BASE}/csvs/{csv_id}", auth=self.auth, timeout=self.timeout)
+            response = self.session.get(f"{API_BASE}/csvs/{csv_id}", auth=self.auth, timeout=self.timeout)
             response.raise_for_status()
             data = response.json()
             if data.get("download_url"):
@@ -45,7 +55,7 @@ class ActBlueClient:
         raise TimeoutError(f"Timed out waiting for ActBlue CSV {csv_id} to generate")
 
     def download_csv(self, download_url):
-        response = requests.get(download_url, timeout=self.timeout)
+        response = self.session.get(download_url, timeout=self.timeout)
         response.raise_for_status()
         return response.text
 
